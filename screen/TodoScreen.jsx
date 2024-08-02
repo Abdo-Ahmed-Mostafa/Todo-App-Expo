@@ -5,6 +5,7 @@ import DraggableFlatList from "react-native-draggable-flatlist";
 import tw from "twrnc";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FallBack from "../component/Fallback";
+import { MaterialCommunityIcons } from "@expo/vector-icons"; // استيراد الأيقونات
 
 const TODO_STORAGE_KEY = "todos";
 
@@ -12,6 +13,7 @@ const TodoScreen = () => {
   const [todo, setTodo] = useState("");
   const [todoList, setTodoList] = useState([]);
   const [editedTodo, setEditedTodo] = useState(null);
+  const [searchQuery, setSearchQuery] = useState(""); // حالة البحث
 
   useEffect(() => {
     const loadTodos = async () => {
@@ -38,7 +40,7 @@ const TodoScreen = () => {
   const handelAddTodo = async () => {
     const newTodoList = [
       ...todoList,
-      { id: Date.now().toString(), title: todo },
+      { id: Date.now().toString(), title: todo, completed: false },
     ];
     setTodoList(newTodoList);
     setTodo("");
@@ -69,6 +71,21 @@ const TodoScreen = () => {
     await saveTodos(updatedTodoList);
   };
 
+  const toggleCompleted = (id) => {
+    const updatedTodoList = todoList.map((item) => {
+      if (item.id === id) {
+        return { ...item, completed: !item.completed };
+      }
+      return item;
+    });
+    setTodoList(updatedTodoList);
+    saveTodos(updatedTodoList);
+  };
+
+  const filteredTodoList = todoList.filter((item) =>
+    item.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const renderTodo = ({ item, drag, isActive }) => {
     return (
       <TouchableOpacity
@@ -79,14 +96,27 @@ const TodoScreen = () => {
             shadowOffset: { width: 0, height: 2 },
             shadowOpacity: 1,
             shadowRadius: 3,
-            backgroundColor: isActive ? "#0000ff" : "#1e90ff",
+            backgroundColor: item.completed
+              ? "#d3d3d3"
+              : isActive
+              ? "#0000ff"
+              : "#1e90ff",
           },
         ]}
         onLongPress={drag}
+        onPress={() => toggleCompleted(item.id)} // إضافة الحدث لتبديل الحالة عند الضغط
       >
-        <Text style={[tw`text-white font-bold text-[20px] flex-1`]}>
+        <Text
+          style={[
+            tw`text-white font-bold text-[20px] flex-1`,
+            { textDecorationLine: item.completed ? "line-through" : "none" },
+          ]}
+        >
           {item.title}
         </Text>
+        {item.completed && (
+          <MaterialCommunityIcons name="check-circle" size={24} color="green" />
+        )}
         <IconButton
           icon="pencil"
           iconColor="#FFF"
@@ -104,7 +134,13 @@ const TodoScreen = () => {
   return (
     <View style={tw`mx-4`}>
       <TextInput
-        style={tw`border-2 border-[#1e90ff] rounded-3 py-3 px-4`}
+        style={tw`border-2 border-[#1e90ff] rounded-3 py-3 px-4 mb-4`}
+        placeholder="Search Tasks"
+        value={searchQuery}
+        onChangeText={(text) => setSearchQuery(text)}
+      />
+      <TextInput
+        style={tw`border-2 border-[#1e90ff] rounded-3 py-3 px-4 mb-4`}
         placeholder="Add a Task"
         value={todo}
         onChangeText={(userText) => setTodo(userText)}
@@ -131,7 +167,7 @@ const TodoScreen = () => {
         </TouchableOpacity>
       )}
       <DraggableFlatList
-        data={todoList}
+        data={filteredTodoList}
         renderItem={renderTodo}
         keyExtractor={(item) => item.id}
         onDragEnd={({ data }) => {
@@ -139,7 +175,7 @@ const TodoScreen = () => {
           saveTodos(data);
         }}
       />
-      {todoList.length <= 0 && <FallBack />}
+      {filteredTodoList.length <= 0 && <FallBack />}
     </View>
   );
 };
