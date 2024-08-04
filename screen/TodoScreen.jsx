@@ -132,7 +132,7 @@ const TodoScreen = () => {
   };
 
   return (
-    <View style={tw`mx-4`}>
+    <View style={tw`mx-4 android:mt-15`}>
       <TextInput
         style={tw`border-2 border-[#1e90ff] rounded-3 py-3 px-4 mb-4`}
         placeholder="Search Tasks"
