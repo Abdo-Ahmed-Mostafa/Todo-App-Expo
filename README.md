@@ -16,15 +16,15 @@ Tailwind CSS: For styling (via twrnc).
 ## Setup
 ### Clone the repository:
 
-git clone https://github.com/Abdo-Ahmed-Mostafa/Todo-App-Expo.git
+`git clone https://github.com/Abdo-Ahmed-Mostafa/Todo-App-Expo.git`
 
-cd todo-app
+`cd todo-app`
 
 ### Install dependencies: 
-npm install
+`npm install`
 
 ### Start the development server:
-npx expo start 
+`npx expo start`
 ## Usage
 ### Adding a Task:
 
